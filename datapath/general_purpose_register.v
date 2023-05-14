@@ -3,18 +3,22 @@
 */
 `ifndef _general_purpose_register
 `define _general_purpose_register
-module general_purpose_register (
+module general_purpose_register #(
+        parameter REGISTER_SIZE = 31,     
+        // Default value for REGISTER_SIZE is 31 (actually 32 but you know anyway, just a verilog hassle)
+        parameter ADDRESS_SIZE = $clog2(REGISTER_SIZE + 1)      // Default address size for 31 registers, will be overridden if REGISTER_SIZE is different
+    )(
         input system_clock,
         input write_enable,
 
-        input write_address,
-        input [31:0] write_data,
+        input [ADDRESS_SIZE-1:0] write_address,
+        input [REGISTER_SIZE:0] write_data,
         
-        input [4:0] read_address_1, read_address_2, 
-        output [31:0] read_data_1, read_data_2
+        input [ADDRESS_SIZE-1:0] read_address_1, read_address_2, 
+        output [REGISTER_SIZE:0] read_data_1, read_data_2
     );
 
-    reg [31:0] registers[31:0];
+    reg [REGISTER_SIZE:0] registers[0:REGISTER_SIZE];
 
     // Three-ported register file
     // Read two ports combinationally

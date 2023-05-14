@@ -11,13 +11,13 @@
                 output zero_output
             );
 
-            parameter ADD = 4'b0010;
-            parameter AND = 4'b0000;
-            parameter NOR = 4'b1100;
-            parameter OR = 4'b0001;
-            parameter SLT = 4'b0111;
-            parameter SUB = 4'b0110;
-            parameter XOR = 4'b1101;
+            localparam ADD = 4'b0010;
+            localparam AND = 4'b0000;
+            localparam NOR = 4'b1100;
+            localparam OR = 4'b0001;
+            localparam SLT = 4'b0111;
+            localparam SUB = 4'b0110;
+            localparam XOR = 4'b1101;
 
 
             wire [31:0] subtraction_output;
