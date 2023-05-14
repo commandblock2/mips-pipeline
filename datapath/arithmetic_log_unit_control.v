@@ -4,10 +4,11 @@
 `ifndef _arithmetic_log_unit_control
 `define _arithmetic_log_unit_control
 
-        module arithmetic_log_unit_control(
+        module arithmetic_log_unit_control (
                 input wire [5:0] function_code,
                 input wire [1:0] alu_operation,
-                output reg [3:0] alu_control_signal);
+                output reg [3:0] alu_control_signal
+            );
 
             reg [3:0] alu_opcode;
 
@@ -30,17 +31,17 @@
             begin
                 case(function_code[3:0])
                     FUNCTION_ADD:
-                        alu_opcode = ALU_ADD;  
+                        alu_opcode = ALU_ADD;
                     FUNCTION_SUB:
-                        alu_opcode = ALU_SUB;  
+                        alu_opcode = ALU_SUB;
                     FUNCTION_OR:
-                        alu_opcode = ALU_OR;   
+                        alu_opcode = ALU_OR;
                     FUNCTION_XOR:
-                        alu_opcode = ALU_XOR;  
+                        alu_opcode = ALU_XOR;
                     FUNCTION_NOR:
-                        alu_opcode = ALU_NOR;  
+                        alu_opcode = ALU_NOR;
                     FUNCTION_SLT:
-                        alu_opcode = ALU_SLT;  
+                        alu_opcode = ALU_SLT;
                     default:
                         alu_opcode = ALU_ADD;
                 endcase

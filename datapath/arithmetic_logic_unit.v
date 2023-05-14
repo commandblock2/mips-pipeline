@@ -4,7 +4,7 @@
 `ifndef _arithmetic_logic_unit
 `define _arithmetic_logic_unit
 
-        module arithmetic_logic_unit(
+        module arithmetic_logic_unit (
                 input [3:0] control_input,
                 input [31:0] operand_a, operand_b,
                 output reg [31:0] result_output,
