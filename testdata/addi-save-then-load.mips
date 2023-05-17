@@ -4,7 +4,7 @@ addi $t1, $zero, 2
 sw $t0, 0($zero)
 sw $t1, 4($zero)
 
-lw $t0, 4($zero)	
+lw $t0, 4($zero)    
 add $t0, $t0, $t1
 
 sw $t1, 8($zero)
