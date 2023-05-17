@@ -68,7 +68,7 @@ module mips (
     
     arithmetic_log_unit_control ALUC(
         .function_code(function_code),
-        .alu_operation(alu_operation),
+        .alu_operation(alu_opcode),
         .alu_control_signal(alu_control_signal)
     );
     

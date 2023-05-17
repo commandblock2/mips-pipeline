@@ -1,0 +1,35 @@
+addi $t0, $zero, 1
+addi $t1, $zero, 2
+
+nop
+nop
+nop
+nop
+nop
+
+sw $t0, 0($zero)
+sw $t1, 4($zero)
+
+nop
+nop
+nop
+nop
+nop
+
+lw $t0, 4($zero)	
+
+nop
+nop
+nop
+nop
+nop
+
+add $t0, $t0, $t1
+
+nop
+nop
+nop
+nop
+nop
+
+sw $t1, 8($zero)
