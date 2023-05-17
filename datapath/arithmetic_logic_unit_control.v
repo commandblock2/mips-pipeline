@@ -1,10 +1,10 @@
 /*
  * Imagin having a ALU control
 */
-`ifndef _arithmetic_log_unit_control
-`define _arithmetic_log_unit_control
+`ifndef _arithmetic_logic_unit_control
+`define _arithmetic_logic_unit_control
 
-        module arithmetic_log_unit_control (
+        module arithmetic_logic_unit_control (
                 input wire [5:0] function_code,
                 input wire [1:0] alu_operation,
                 output reg [3:0] alu_control_signal

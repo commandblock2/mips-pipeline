@@ -10,9 +10,7 @@
         module instruction_fetch_unit (
                 input system_clock,
                 input reset,
-                input [31:0] program_counter,
-                output reg [31:0] instruction,
-                output reg valid
+                output [31:0] instruction
             );
             reg [9:0] memory_index;
             wire [31:0] memory_data_out;
@@ -23,23 +21,25 @@
                                    .data_out(memory_data_out)
                                );
 
-            always @ (posedge system_clock, negedge reset)
+            reg [31:0] program_counter;  // PC register
+
+            assign program_counter_next = program_counter + 4;  // PC increment
+
+            always @ (posedge system_clock or negedge reset)
             begin
                 if (!reset)
                 begin
-                    instruction <= 0;
                     memory_index <= 0;
-                    valid <= 0;
+                    program_counter <= 0;  // Reset PC
+                end
+                else  // On clock edge
+                begin
+                    memory_index <= program_counter[11:2];  // Update memory index
+                    program_counter <= program_counter_next;  // Update PC
                 end
             end
 
-            always @ (posedge system_clock)
-            begin
-                memory_index <= program_counter[11:2];
-                instruction <= memory_data_out;
-
-                valid <= 1;
-            end
+            assign instruction = memory_data_out;
         endmodule
 
 `endif
