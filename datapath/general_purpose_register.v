@@ -18,7 +18,7 @@ module general_purpose_register #(
         output [REGISTER_SIZE:0] read_data_1, read_data_2
     );
 
-    reg [REGISTER_SIZE:0] registers[0:REGISTER_SIZE];
+    reg [31:0] registers[0:REGISTER_SIZE];
 
     // Three-ported register file
     // Read two ports combinationally
