@@ -23,23 +23,18 @@
 
             reg [31:0] program_counter;  // PC register
 
-            assign program_counter_next = program_counter + 4;  // PC increment
-
             always @ (posedge system_clock or negedge reset)
             begin
-                if (!reset)
-                begin
-                    memory_index <= 0;
-                    program_counter <= 0;  // Reset PC
-                end
-                else  // On clock edge
-                begin
-                    memory_index <= program_counter[11:2];  // Update memory index
-                    program_counter <= program_counter_next;  // Update PC
-                end
+                program_counter <= program_counter + 4;  // Update PC
+                memory_index <= program_counter[11:2];  // Update memory index
             end
 
             assign instruction = memory_data_out;
-        endmodule
 
+            initial
+            begin
+                program_counter <= 0;
+                $dumpvars(0, instruction_fetch_unit);
+            end
+        endmodule
 `endif

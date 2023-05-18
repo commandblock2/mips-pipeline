@@ -1,0 +1,4 @@
+dump.vcd
+*.hex
+testdata/test.txt
+a.out

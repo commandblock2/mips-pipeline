@@ -73,7 +73,7 @@
             mux2 #(5) write_address_mux(
                      .lhs(instruction[20:16]),
                      .rhs(instruction[15:11]),
-                     .is_lhs(register_destination),
+                     .is_lhs(~register_destination),
                      .data_out(gpr_write_address)
                  );
 
@@ -103,7 +103,7 @@
             mux2 #(32) operand_b_mux(
                      .lhs(read_data_2),
                      .rhs(extended_immediate),
-                     .is_lhs(alu_source),
+                     .is_lhs(~alu_source),
                      .data_out(operand_b)
                  );
             arithmetic_logic_unit ALU(
@@ -136,9 +136,14 @@
             mux2 #(32) write_data_mux(
                      .lhs(alu_result),
                      .rhs(data_read),
-                     .is_lhs(memory_to_register),
+                     .is_lhs(~memory_to_register),
                      .data_out(gpr_write_data)
                  );
+
+            initial
+            begin
+                $dumpvars(0, mips);
+            end
 
         endmodule
 `endif

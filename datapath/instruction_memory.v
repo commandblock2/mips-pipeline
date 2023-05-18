@@ -10,5 +10,14 @@
             reg [31:0] memory [0:2 ^ SIZE_EXP2 - 1];
 
             assign data_out = memory[address];
+
+
+            initial
+            begin
+                $readmemh ("testdata/test.txt", memory);
+
+                #300
+                $finish;
+            end
         endmodule
 `endif

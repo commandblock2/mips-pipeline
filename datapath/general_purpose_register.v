@@ -3,38 +3,49 @@
 */
 `ifndef _general_purpose_register
 `define _general_purpose_register
-module general_purpose_register #(
-        parameter REGISTER_SIZE = 31,     
-        // Default value for REGISTER_SIZE is 31 (actually 32 but you know anyway, just a verilog hassle)
-        parameter ADDRESS_SIZE = $clog2(REGISTER_SIZE + 1)      // Default address size for 31 registers, will be overridden if REGISTER_SIZE is different
-    )(
-        input system_clock,
-        input write_enable,
+        module general_purpose_register #(
+                parameter REGISTER_SIZE = 31,
+                // Default value for REGISTER_SIZE is 31 (actually 32 but you know anyway, just a verilog hassle)
+                parameter ADDRESS_SIZE = $clog2(REGISTER_SIZE + 1)      // Default address size for 31 registers, will be overridden if REGISTER_SIZE is different
+            )(
+                input system_clock,
+                input write_enable,
 
-        input [ADDRESS_SIZE-1:0] write_address,
-        input [REGISTER_SIZE:0] write_data,
-        
-        input [ADDRESS_SIZE-1:0] read_address_1, read_address_2, 
-        output [REGISTER_SIZE:0] read_data_1, read_data_2
-    );
+                input [ADDRESS_SIZE-1:0] write_address,
+                input [REGISTER_SIZE:0] write_data,
 
-    reg [31:0] registers[0:REGISTER_SIZE];
+                input [ADDRESS_SIZE-1:0] read_address_1, read_address_2,
+                output [REGISTER_SIZE:0] read_data_1, read_data_2
+            );
 
-    // Three-ported register file
-    // Read two ports combinationally
-    // Write on rising edge of clock
+            reg [31:0] registers[0:REGISTER_SIZE];
 
-    always @(posedge system_clock)
-    begin
-        if (write_enable)
-        begin
-            registers[write_address] <= write_data;
-        end
-    end
+            // Three-ported register file
+            // Read two ports combinationally
+            // Write on rising edge of clock
 
-    assign read_data_1 = (read_address_1 != 0) ? registers[read_address_1] : 0;
-    assign read_data_2 = (read_address_2 != 0) ? registers[read_address_2] : 0;
+            always @(posedge system_clock)
+            begin
+                if (write_enable)
+                begin
+                    registers[write_address] <= write_data;
+                end
+            end
 
-endmodule
+            assign read_data_1 = (read_address_1 != 0) ? registers[read_address_1] : 0;
+            assign read_data_2 = (read_address_2 != 0) ? registers[read_address_2] : 0;
+
+
+
+            generate
+                genvar idx;
+                for(idx = 0; idx < 32; idx = idx+1)
+                begin: register
+                    wire [31:0] tmp;
+                    assign tmp = registers[idx];
+                end
+            endgenerate
+
+        endmodule
 
 `endif

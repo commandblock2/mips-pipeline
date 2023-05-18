@@ -1,7 +1,7 @@
 `include "mips.v"
 
 module testbench;
-    reg clock = 0, reset = 0;
+    reg clock = 0, reset = 1;
 
     mips dut
          (
@@ -12,6 +12,4 @@ module testbench;
 
     localparam CLK_PERIOD = 10;
     always #(CLK_PERIOD/2) clock=~clock;
-
-
 endmodule
