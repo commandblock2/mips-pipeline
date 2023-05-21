@@ -34,7 +34,6 @@
             initial
             begin
                 program_counter <= 0;
-                $dumpvars(0, instruction_fetch_unit);
             end
         endmodule
 `endif

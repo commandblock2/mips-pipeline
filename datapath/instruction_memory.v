@@ -16,7 +16,7 @@
             begin
                 $readmemh ("testdata/test.txt", memory);
 
-                #300
+                #1000
                 $finish;
             end
         endmodule

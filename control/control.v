@@ -22,6 +22,7 @@
             localparam ADDI = 6'b001000;
             localparam ADD = 6'b000000;
             localparam JUMP = 6'b000010;
+            localparam LUI = 6'b001111;
 
             always @(*)
             begin
@@ -38,7 +39,7 @@
                 jump <= 1'b0;
 
                 case (opcode)
-                    LW: 
+                    LW:
                     begin
                         memory_read <= 1'b1;
                         register_destination <= 1'b0;
@@ -47,7 +48,7 @@
                         alu_source <= 1'b1;
                     end
 
-                    BEQ: 
+                    BEQ:
                     begin
                         alu_opcode[0] <= 1'b1;
                         alu_opcode[1] <= 1'b0;
@@ -63,7 +64,7 @@
                         register_write <= 1'b0;
                     end
 
-                    SW: 
+                    SW:
                     begin
                         memory_write <= 1'b1;
                         alu_opcode[1] <= 1'b0;
@@ -71,18 +72,25 @@
                         register_write <= 1'b0;
                     end
 
-                    ADDI: 
+                    ADDI:
                     begin
                         register_destination <= 1'b0;
                         alu_opcode[1] <= 1'b0;
                         alu_source <= 1'b1;
                     end
 
-                    ADD: 
+                    ADD:
                     begin
                     end
 
-                    JUMP: 
+                    LUI:
+                    begin
+                        alu_opcode <= 2'b00;
+                        alu_source <= 1'b1;
+                        register_destination <= 1'b0;
+                    end
+
+                    JUMP:
                     begin
                         jump <= 1'b1;
                     end
