@@ -35,6 +35,7 @@
             wire memory_read, memory_write, memory_to_register;
             wire register_destination, register_write, alu_source;
             wire jump;
+            wire shift_upper;
 
             control IDU(
                         .opcode(opcode),
@@ -47,6 +48,7 @@
                         .register_destination(register_destination),
                         .register_write(register_write),
                         .alu_source(alu_source),
+                        .shift_upper(shift_upper),
                         .jump(jump)
                     );
 
@@ -76,6 +78,7 @@
             wire [3:0] alu_control_signal;
             wire [31:0] operand_a, operand_b, alu_result;
             wire zero_output;
+            wire [31:0] shifted_immediate = {instruction[15:0], 16'b0};
 
             arithmetic_logic_unit_control ALUC(
                                               .function_code(function_code),
@@ -89,7 +92,7 @@
             wire [31:0] extended_immediate;
             extension sign_extension(
                           .immediate(instruction[15:0]),
-                          .extension_type(2'b01),
+                          .extension_type(1'b1),
                           .extended_value(extended_immediate)
                       );
 
@@ -120,6 +123,9 @@
             // WB Stage
             reg [31:0] write_data;
             wire [4:0] write_address;
+            wire [31:0] writeback_input;
+
+            assign writeback_input = shift_upper ? shifted_immediate : alu_result;
             assign gpr_write_data = memory_to_register ? data_memory_out : alu_result;
 
             initial

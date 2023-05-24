@@ -41,8 +41,8 @@
                 genvar idx;
                 for(idx = 0; idx < 32; idx = idx+1)
                 begin: register
-                    wire [31:0] tmp;
-                    assign tmp = registers[idx];
+                    wire [31:0] registers_;
+                    assign registers_ = registers[idx];
                 end
             endgenerate
 

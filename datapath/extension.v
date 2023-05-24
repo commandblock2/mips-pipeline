@@ -4,25 +4,19 @@
 
         module extension (
                 input wire [15:0] immediate,
-                input wire [1:0] extension_type,
-                output reg [31:0] extended_value
+                input wire extension_type,
+                output [31:0] extended_value
             );
 
 
-            parameter ZERO_EXTENSION = 2'b00;
-            parameter SIGN_EXTENSION = 2'b01;
+            parameter ZERO_EXTENSION = 0;
+            parameter SIGN_EXTENSION = 1;
 
-            always @(*)
-            begin
-                case (extension_type)
-                    ZERO_EXTENSION:
-                        extended_value = {16'b0, immediate[15:0]}; // Zero extension
-                    SIGN_EXTENSION:
-                        extended_value = {{16{immediate[15]}}, immediate[15:0]}; // Sign extension
-                    default:
-                        extended_value = {16'b0, immediate[15:0]}; // Default to zero extension
-                endcase
-            end
+
+            assign extended_value = (extension_type == ZERO_EXTENSION) ?
+                   {16'b0, immediate[15:0]} :
+                   {{16{immediate[15]}}, immediate[15:0]}; // Zero extension
+
 
         endmodule
 `endif

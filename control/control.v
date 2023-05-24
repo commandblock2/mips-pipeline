@@ -11,6 +11,7 @@
                 output reg [1:0] alu_opcode,
                 output reg memory_read, memory_write, memory_to_register,
                 output reg register_destination, register_write, alu_source,
+                output reg shift_upper,
                 output reg jump
             );
 
@@ -37,6 +38,7 @@
                 register_destination <= 1'b1;
                 register_write <= 1'b1;
                 jump <= 1'b0;
+                shift_upper <= 1'b0;
 
                 case (opcode)
                     LW:
@@ -85,8 +87,8 @@
 
                     LUI:
                     begin
-                        alu_opcode <= 2'b00;
-                        alu_source <= 1'b1;
+                        shift_upper <= 1'b1;
+                        register_write <= 1'b1;
                         register_destination <= 1'b0;
                     end
 

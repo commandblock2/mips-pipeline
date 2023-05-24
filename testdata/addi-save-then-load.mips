@@ -1,14 +1,14 @@
 addi $t0, $zero, 1
 addi $t1, $zero, 2
 
-sw $t0, 0x10010000($zero)
-sw $t1, 0x10010100($zero)
+sw $t0, 0($zero)
+sw $t1, 4($zero)
 
 nop
 nop
 nop
 
-lw $t0, 0x10010000($zero)    
+lw $t0, 4($zero)    
 add $t0, $t0, $t1
 
-sw $t1, 0x10011000($zero)
+sw $t1, 8($zero)
