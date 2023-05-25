@@ -1,0 +1,27 @@
+addi $t0, $zero, 5
+
+j		THINGS_THAT_WORKS
+
+
+addi $t0, $zero, 1
+addi $t1, $zero, 2
+
+sw $t0, 0($zero)
+sw $t1, 4($zero)
+
+nop
+nop
+nop
+
+lw $t0, 4($zero)    
+add $t0, $t0, $t1
+
+sw $t1, 8($zero)
+
+THINGS_THAT_WORKS:
+
+addi $t1, $zero, 6
+subu $t1, $t1, $t0
+
+sw $t0, 0($zero)
+sw $t1, 4($zero)

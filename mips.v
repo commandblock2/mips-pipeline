@@ -20,9 +20,18 @@
             wire [31:0] instruction;
             wire instruction_valid;
 
+            wire branch_eq, branch_ne;
+            wire [31:0] extended_immediate;
+            wire zero_output;
+            wire jump;
+
             instruction_fetch_unit IFU(
                                        .system_clock(system_clock),
                                        .reset(reset),
+                                       .branch_eq(branch_eq),
+                                       .zero(zero_output),
+                                       .extended_immediate(extended_immediate),
+                                       .jump(jump),
                                        .instruction(instruction)
                                    );
 
@@ -30,11 +39,10 @@
             wire [5:0] opcode;
             assign opcode = instruction[31:26];
 
-            wire branch_eq, branch_ne;
+            
             wire [1:0] alu_opcode;
             wire memory_read, memory_write, memory_to_register;
             wire register_destination, register_write, alu_source;
-            wire jump;
             wire shift_upper;
 
             control IDU(
@@ -51,6 +59,7 @@
                         .shift_upper(shift_upper),
                         .jump(jump)
                     );
+
 
             wire [4:0] gpr_write_address;
             wire [31:0] gpr_write_data;
@@ -77,7 +86,7 @@
             wire [5:0] function_code = instruction[5:0];
             wire [3:0] alu_control_signal;
             wire [31:0] operand_a, operand_b, alu_result;
-            wire zero_output;
+
             wire [31:0] shifted_immediate = {instruction[15:0], 16'b0};
 
             arithmetic_logic_unit_control ALUC(
@@ -89,10 +98,11 @@
             assign operand_a = gpr_data_out_1;
 
 
-            wire [31:0] extended_immediate;
+            
+
             extension sign_extension(
                           .immediate(instruction[15:0]),
-                          .extension_type(1'b1),
+                          .extension_type(~shift_upper),
                           .extended_value(extended_immediate)
                       );
 
@@ -123,9 +133,6 @@
             // WB Stage
             reg [31:0] write_data;
             wire [4:0] write_address;
-            wire [31:0] writeback_input;
-
-            assign writeback_input = shift_upper ? shifted_immediate : alu_result;
             assign gpr_write_data = memory_to_register ? data_memory_out : alu_result;
 
             initial

@@ -24,6 +24,7 @@
             localparam ADD = 6'b000000;
             localparam JUMP = 6'b000010;
             localparam LUI = 6'b001111;
+            localparam ORI = 6'b001101;
 
             always @(*)
             begin
@@ -87,9 +88,19 @@
 
                     LUI:
                     begin
+                        alu_opcode <= 2'b00;
+                        alu_source <= 1'b1;
                         shift_upper <= 1'b1;
                         register_write <= 1'b1;
                         register_destination <= 1'b0;
+                    end
+
+                    ORI:
+                    begin
+                        alu_opcode <= 2'b00;  // ALU performs OR operation
+                        alu_source <= 1'b1;   // ALU second operand is immediate
+                        register_destination <= 1'b0; // Destination register is rt
+                        memory_to_register <= 1'b0; // ALU result is written back to register
                     end
 
                     JUMP:

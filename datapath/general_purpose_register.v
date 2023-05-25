@@ -36,6 +36,15 @@
             assign read_data_2 = (read_address_2 != 0) ? registers[read_address_2] : 0;
 
 
+            integer i;
+
+            initial
+            begin
+                for (i = 0; i < REGISTER_SIZE; i = i + 1)
+                begin
+                    registers[i] = 32'b0;
+                end
+            end
 
             generate
                 genvar idx;

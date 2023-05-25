@@ -1,0 +1,29 @@
+addi $t0, $zero, 1
+addi $t1, $zero, 4
+
+loop:
+beq $t1, $t0, loop_end
+
+addi $t0, $t0, 1
+addi $t2, $t2, 1
+
+j loop
+loop_end:
+
+
+sw $t0, 0($zero)
+sw $t1, 4($zero)
+
+
+lw $t0, 4($zero)    
+add $t0, $t0, $t1
+
+sw $t1, 8($zero)
+
+subu $t0, $t0, $t2
+addu $t3, $zero, $t2
+
+ori $t3, $zero, 1
+
+addu $t4, $zero, $t3
+lui $t4, 123

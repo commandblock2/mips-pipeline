@@ -20,8 +20,8 @@
             localparam ALU_SUB = 4'b0110;
             localparam ALU_XOR = 4'b1101;
 
-            localparam FUNCTION_ADD = 4'b0000;
-            localparam FUNCTION_SUB = 4'b0010;
+            localparam FUNCTION_ADD = 4'b0001;
+            localparam FUNCTION_SUB = 4'b0011;
             localparam FUNCTION_OR = 4'b0101;
             localparam FUNCTION_XOR = 4'b0110;
             localparam FUNCTION_NOR = 4'b0111;

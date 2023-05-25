@@ -10,9 +10,13 @@
         module instruction_fetch_unit (
                 input system_clock,
                 input reset,
+                input branch_eq,
+                input zero,
+                input [31:0] extended_immediate,
+                input jump,
                 output [31:0] instruction
             );
-            reg [9:0] memory_index;
+            wire [9:0] memory_index;
             wire [31:0] memory_data_out;
 
             instruction_memory memory(
@@ -23,12 +27,23 @@
 
             reg [31:0] program_counter;  // PC register
 
-            always @ (posedge system_clock or negedge reset)
+            always @(negedge reset)
             begin
-                program_counter <= program_counter + 4;  // Update PC
-                memory_index <= program_counter[11:2];  // Update memory index
+                program_counter <= 0;
             end
 
+            always @ (posedge system_clock)
+            begin
+                if (branch_eq && zero)
+                    program_counter <= program_counter + 4 + (extended_immediate << 2);  // Branch taken
+                else if (jump)
+                    program_counter <= {program_counter[31:28], instruction[25:0], 2'b00};
+                else
+                    program_counter <= program_counter + 4;  // Update PC
+
+            end
+
+            assign memory_index = program_counter[11:2];  // Update memory index
             assign instruction = memory_data_out;
 
             initial

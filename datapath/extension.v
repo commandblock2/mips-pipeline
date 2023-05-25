@@ -14,7 +14,7 @@
 
 
             assign extended_value = (extension_type == ZERO_EXTENSION) ?
-                   {16'b0, immediate[15:0]} :
+                   {immediate[15:0], 16'b0} :
                    {{16{immediate[15]}}, immediate[15:0]}; // Zero extension
 
 
