@@ -16,14 +16,7 @@
                 input wire write_enable
             );
 
-            // aliases
             wire [31:0] instruction;
-            wire [5:0] opcode = instruction[31:26];
-            wire [5:0] function_code = instruction[5:0];
-            wire [25:21] source_register = instruction[25:21];
-            wire [20:16] temporary_register = instruction[20:16];
-            wire [15:11] destination_register = instruction[15:11];
-            wire [15:0] immediate = instruction[15:0];
 
             // IF Stage
             wire branch_eq, branch_ne;
@@ -32,9 +25,6 @@
             wire jump;
             wire [31:0] program_counter;
 
-            wire register_write_state5;
-            wire [4:0] gpr_write_address_state5;
-            wire [31:0]	gpr_write_data_state5;
             reg stall_state12;
 
             instruction_fetch_unit IFU(
@@ -53,11 +43,13 @@
             wire jump_state_memory;
             reg should_branch;
             reg flush_state_fetch, flush_state_decode, flush_state_execution;
-            always @(posedge system_clock) begin
+            always @(posedge system_clock)
+            begin
                 flush_state_fetch <= 1'b0;
                 flush_state_decode <= 1'b0;
                 flush_state_execution <= 1'b0;
-                if (should_branch | jump_state_memory) begin
+                if (should_branch | jump_state_memory)
+                begin
                     flush_state_fetch <= 1'b1;
                     flush_state_decode <= 1'b1;
                     flush_state_execution <= 1'b1;
@@ -72,14 +64,22 @@
 
             wire [31:0] program_counter_plus4_state_decode, instruction_state_decode;
             hold_register #(.N(64)) pc4s2(
-                .system_clock(system_clock),
-                .hold(stall_state12),
-                .reset(flush_state_fetch),
-                .input_signal({program_counter_plus4, instruction}),
-                .output_signal({program_counter_plus4_state_decode, instruction_state_decode})
-            );
+                              .system_clock(system_clock),
+                              .hold(stall_state12),
+                              .reset(flush_state_fetch),
+                              .input_signal({program_counter_plus4, instruction}),
+                              .output_signal({program_counter_plus4_state_decode, instruction_state_decode})
+                          );
 
             // ID Stage
+
+            wire [5:0] opcode = instruction_state_decode[31:26];
+            wire [5:0] function_code = instruction_state_decode[5:0];
+            wire [25:21] source_register = instruction_state_decode[25:21];
+            wire [20:16] temporary_register = instruction_state_decode[20:16];
+            wire [15:11] destination_register = instruction_state_decode[15:11];
+            wire [15:0] immediate = instruction_state_decode[15:0];
+
             wire [1:0] alu_opcode;
             wire memory_read, memory_write, memory_to_register;
             wire register_destination, register_write, alu_source;
@@ -128,6 +128,23 @@
 
             // Select write_address based on register_destination
             assign gpr_write_address = register_destination ? destination_register : temporary_register;
+
+
+            // ID -> Ex
+            wire register_write_state_execution,
+                 memory_to_register_state_execution,
+                 memory_write_state_execution,
+                 alu_source_state_execution,
+                 register_destination_state_execution;
+
+            wire [1:0] alu_opcode_state_execution;
+
+            hold_register decode_execution(
+                              .system_clock(system_clock),
+                              .hold(),
+                          );
+
+
 
             // EX Stage
 
