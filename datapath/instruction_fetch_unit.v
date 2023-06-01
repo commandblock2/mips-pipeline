@@ -14,6 +14,7 @@
                 input zero,
                 input [31:0] extended_immediate,
                 input jump,
+                output [31:0] program_counter,
                 output [31:0] instruction
             );
             wire [9:0] memory_index;

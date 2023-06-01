@@ -5,11 +5,37 @@ subu $9,$3,$6
 addu $0,$9,$10
 sw $9,16($0)
 lw $10,16($0)
+
 l3:beq $9,$10,l1
 lui $11,0xcdcd
 j end
+
 l1:ori $11,$0,0xefef
 lui $9,0x4567
 j l3
+
 end:
 # the script + mips-unknown-linux-gnu-as doesn't work well with this
+# 00000000 <l3-0x20>:
+#    0:   34030093        li      v1,0x93
+#    4:   340600ae        li      a2,0xae
+#    8:   00664021        addu    t0,v1,a2
+#    c:   00664823        subu    t1,v1,a2
+#   10:   012a0021        addu    zero,t1,t2
+#   14:   ac090010        sw      t1,16(zero)
+#   18:   8c0a0010        lw      t2,16(zero)
+#   1c:   00000000        nop
+
+# 00000020 <l3>:
+#   20:   112a0003        beq     t1,t2,30 <l1>
+#   24:   00000000        nop
+#   28:   0800000f        j       3c <end>
+#   2c:   3c0bcdcd        lui     t3,0xcdcd
+
+# 00000030 <l1>:
+#   30:   340befef        li      t3,0xefef
+#   34:   08000008        j       20 <l3>
+#   38:   3c094567        lui     t1,0x4567
+
+# 0000003c <end>:
+#   3c:   00000000        nop

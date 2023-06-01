@@ -91,7 +91,6 @@
                         alu_opcode <= 2'b00;
                         alu_source <= 1'b1;
                         shift_upper <= 1'b1;
-                        register_write <= 1'b1;
                         register_destination <= 1'b0;
                     end
 
