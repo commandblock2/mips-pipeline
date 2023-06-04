@@ -97,7 +97,7 @@
 
             extension sign_extension(
                           .immediate(immediate),
-                          .extension_type(~shift_upper),
+                          .extension_type({shift_upper, memory_read || memory_write}),
                           .extended_value(extended_immediate)
                       );
 
@@ -162,7 +162,7 @@
                               .input_signal({
                                                 jump,
                                                 jump_address,
-                                                branch_eq && data_out_1 == data_out_2,
+                                                branch_eq,
                                                 branch_address,
                                                 memory_read
                                             }),
@@ -386,25 +386,25 @@
 
 
 
-            reg forward_a_stage_decode;
-            reg forward_b_stage_decode;
+            // reg forward_a_stage_decode;
+            // reg forward_b_stage_decode;
 
-            always @(*)
-            begin
-                if (source_register &&
-                        source_register == gpr_write_address_stage_memory &&
-                        register_write_stage_memory)
-                    forward_a_stage_decode <= 1'b1;
-                else
-                    forward_a_stage_decode <= 1'b0;
+            // always @(*)
+            // begin
+            //     if (source_register &&
+            //             source_register == gpr_write_address_stage_memory &&
+            //             register_write_stage_memory)
+            //         forward_a_stage_decode <= 1'b1;
+            //     else
+            //         forward_a_stage_decode <= 1'b0;
 
-                if(temporary_register &&
-                        temporary_register == gpr_write_address_stage_memory &&
-                        register_write_stage_memory)
-                    forward_b_stage_decode <= 1'b1;
-                else
-                    forward_b_stage_decode <= 1'b0;
-            end
+            //     if(temporary_register &&
+            //             temporary_register == gpr_write_address_stage_memory &&
+            //             register_write_stage_memory)
+            //         forward_b_stage_decode <= 1'b1;
+            //     else
+            //         forward_b_stage_decode <= 1'b0;
+            // end
 
             reg [1:0] forward_a_stage_execution;
             reg [1:0] forward_b_stage_execution;
