@@ -41,18 +41,12 @@
 
 
             reg should_branch;
-            reg flush_stage_fetch, flush_stage_decode, flush_stage_execution;
+            reg flush;
             always @(posedge system_clock)
             begin
-                flush_stage_fetch <= 1'b0;
-                flush_stage_decode <= 1'b0;
-                flush_stage_execution <= 1'b0;
+                flush <= 1'b0;
                 if (should_branch | jump_stage_memory)
-                begin
-                    flush_stage_fetch <= 1'b1;
-                    flush_stage_decode <= 1'b1;
-                    flush_stage_execution <= 1'b1;
-                end
+                    flush <= 1'b1;
             end
 
 
@@ -65,7 +59,7 @@
             hold_register #(.N(64)) if_id_latch(
                               .system_clock(system_clock),
                               .hold(stall_stage_ifid),
-                              .reset(flush_stage_fetch),
+                              .reset(flush),
                               .input_signal({program_counter_plus4, instruction}),
                               .output_signal({program_counter_plus4_stage_decode, instruction_stage_decode})
                           );
@@ -130,7 +124,7 @@
             // Select write_address based on register_destination
             wire [4:0] gpr_write_address = register_destination ? destination_register : temporary_register;
 
-            wire [31:0] branch_address = program_counter_plus4_stage_decode + extended_immediate;
+            wire [31:0] branch_address = program_counter_plus4_stage_decode + (extended_immediate << 2);
             wire [31:0] jump_address = {program_counter_plus4_stage_decode[31:28], instruction_stage_decode[25:0], {2{1'b0}}};
 
 
@@ -163,12 +157,12 @@
 
             hold_register #(.N(67)) jump_branch_latch(
                               .system_clock(system_clock),
-                              .reset(flush_stage_decode),
+                              .reset(flush),
                               .hold(1'b0),
                               .input_signal({
                                                 jump,
                                                 jump_address,
-                                                branch_eq,
+                                                branch_eq && data_out_1 == data_out_2,
                                                 branch_address,
                                                 memory_read
                                             }),
@@ -191,7 +185,7 @@
 
             hold_register #(.N(124)) id_ex_latch(
                               .system_clock(system_clock),
-                              .reset(flush_stage_decode),
+                              .reset(flush),
                               .hold(stall_stage_ifid),
                               .input_signal({
                                                 register_write,
@@ -241,7 +235,7 @@
 
             reg [31:0] forward_data1_stage_execution;
             always @(*)
-            case (forward_a)
+            case (forward_a_stage_execution)
                 2'd1:
                     forward_data1_stage_execution = alu_result_stage_memory;
                 2'd2:
@@ -250,28 +244,27 @@
                     forward_data1_stage_execution = gpr_data_out_1_stage_execution;
             endcase
 
+            reg [31:0] forward_data2_stage_execution;
+            always @(*)
+            case (forward_b_stage_execution)
+                2'd1:
+                    forward_data2_stage_execution = alu_result_stage_memory;
+                2'd2:
+                    forward_data2_stage_execution = gpr_write_data;
+                default:
+                    forward_data2_stage_execution = gpr_data_out_2_stage_execution;
+            endcase
+
             // Select operand_b based on alu_source
             arithmetic_logic_unit ALU(
                                       .control_input(alu_control_signal),
                                       .operand_a(forward_data1_stage_execution),
                                       .operand_b(alu_source_stage_execution ?
                                                  extended_immediate_stage_execution :
-                                                 gpr_data_out_2_stage_execution),
+                                                 forward_data2_stage_execution),
                                       .result_output(alu_result),
                                       .zero_output(zero_output)
                                   );
-
-            wire [31:0] data2_s4;
-            reg [31:0] forward_data2_stage_execution;
-            always @(*)
-            case (forward_b)
-                2'd1:
-                    forward_data2_stage_execution = alu_result_stage_memory;
-                2'd2:
-                    forward_data2_stage_execution = gpr_write_data;
-                default:
-                    forward_data2_stage_execution = gpr_data_out_1_stage_execution;
-            endcase
 
             // Ex -> Mem
             wire register_write_stage_memory,
@@ -299,7 +292,7 @@
             hold_register #(.N(135)) ex_mem_latch(
                               .system_clock(system_clock),
                               .hold(1'b0),
-                              .reset(flush_stage_execution),
+                              .reset(flush),
                               .input_signal({
                                                 alu_result,
                                                 forward_data2_stage_execution,
@@ -324,7 +317,7 @@
             hold_register #(.N(3)) decoded_ex_mem_latch(
                               .system_clock(system_clock),
                               .hold(1'b0),
-                              .reset(flush_stage_decode),
+                              .reset(flush),
                               .input_signal({
                                                 register_write_stage_execution,
                                                 memory_to_register_stage_execution,
@@ -392,24 +385,45 @@
             end
 
 
-            reg [1:0] forward_a;
-            reg [1:0] forward_b;
+
+            reg forward_a_stage_decode;
+            reg forward_b_stage_decode;
+
+            always @(*)
+            begin
+                if (source_register &&
+                        source_register == gpr_write_address_stage_memory &&
+                        register_write_stage_memory)
+                    forward_a_stage_decode <= 1'b1;
+                else
+                    forward_a_stage_decode <= 1'b0;
+
+                if(temporary_register &&
+                        temporary_register == gpr_write_address_stage_memory &&
+                        register_write_stage_memory)
+                    forward_b_stage_decode <= 1'b1;
+                else
+                    forward_b_stage_decode <= 1'b0;
+            end
+
+            reg [1:0] forward_a_stage_execution;
+            reg [1:0] forward_b_stage_execution;
             always @(*)
             begin
 
                 if ((register_write_stage_memory == 1'b1) && (gpr_write_address_stage_memory == source_register_stage_execution))
-                    forward_a <= 2'd1;
+                    forward_a_stage_execution <= 2'd1;
                 else if ((register_write_stage_writeback == 1'b1) && (gpr_write_address_stage_writeback == source_register_stage_execution))
-                    forward_a <= 2'd2;
+                    forward_a_stage_execution <= 2'd2;
                 else
-                    forward_a <= 2'd0;
+                    forward_a_stage_execution <= 2'd0;
 
                 if ((register_write_stage_memory == 1'b1) & (gpr_write_address_stage_memory == temporary_register_stage_execution))
-                    forward_b <= 2'd1;
+                    forward_b_stage_execution <= 2'd1;
                 else if ((register_write_stage_writeback == 1'b1) && (gpr_write_address_stage_writeback == temporary_register_stage_execution))
-                    forward_b <= 2'd2;
+                    forward_b_stage_execution <= 2'd2;
                 else
-                    forward_b <= 2'd0;
+                    forward_b_stage_execution <= 2'd0;
             end
 
 
