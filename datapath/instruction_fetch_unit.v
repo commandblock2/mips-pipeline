@@ -10,10 +10,11 @@
         module instruction_fetch_unit (
                 input system_clock,
                 input reset,
-                input branch_eq,
-                input zero,
-                input [31:0] extended_immediate,
+                input branch,
+                input stall_stage_ifid,
+                input [31:0] branch_address,
                 input jump,
+                input [31:0] jump_address,
                 output [31:0] program_counter,
                 output [31:0] instruction
             );
@@ -35,12 +36,14 @@
 
             always @ (posedge system_clock)
             begin
-                if (branch_eq && zero)
-                    program_counter <= program_counter + 4 + (extended_immediate << 2);  // Branch taken
+                if (stall_stage_ifid)
+                    program_counter <= program_counter;
+                else if (branch)
+                    program_counter <= branch_address;
                 else if (jump)
-                    program_counter <= {program_counter[31:28], instruction[25:0], 2'b00};
+                    program_counter <= jump_address;
                 else
-                    program_counter <= program_counter + 4;  // Update PC
+                    program_counter <= program_counter + 4;
 
             end
 
